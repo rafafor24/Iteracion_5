@@ -19,6 +19,7 @@ import java.util.ArrayList;
 import java.util.Properties;
 
 import dao.DAOTablaVideos;
+import dtm.VideoAndesDistributed;
 import vos.Video;
 import vos.ListaVideos;
 
@@ -63,6 +64,8 @@ public class VideoAndesMaster {
 	 * Conexión a la base de datos
 	 */
 	private Connection conn;
+	
+	private VideoAndesDistributed dtm;
 
 
 	/**
@@ -75,6 +78,9 @@ public class VideoAndesMaster {
 	public VideoAndesMaster(String contextPathP) {
 		connectionDataPath = contextPathP + CONNECTION_DATA_FILE_NAME_REMOTE;
 		initConnectionData();
+		System.out.println("Instancing DTM...");
+		dtm = VideoAndesDistributed.getInstance(this);
+		System.out.println("Done!");
 	}
 
 	/*
@@ -147,6 +153,7 @@ public class VideoAndesMaster {
 				throw exception;
 			}
 		}
+		dtm.getRemoteVideos();
 		return new ListaVideos(videos);
 	}
 

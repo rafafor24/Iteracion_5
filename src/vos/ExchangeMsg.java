@@ -4,8 +4,11 @@ import org.codehaus.jackson.annotate.JsonProperty;
 
 public class ExchangeMsg 
 {
-	@JsonProperty(value="queue")
-	private String queue;
+	@JsonProperty(value="routingkey")
+	private String routingKey;
+	
+	@JsonProperty(value="sender")
+	private String sender;
 	
 	@JsonProperty(value="payload")
 	private String payload;
@@ -13,10 +16,11 @@ public class ExchangeMsg
 	@JsonProperty(value="status")
 	private String status;
 	
-	public ExchangeMsg(@JsonProperty(value="queue") String queue, @JsonProperty(value="payload") String payload, 
+	public ExchangeMsg(@JsonProperty(value="routingkey") String queue, @JsonProperty(value="sender") String sender, @JsonProperty(value="payload") String payload, 
 						@JsonProperty(value="status") String status) 
 	{
-		this.queue = queue;
+		this.routingKey = queue;
+		this.sender = sender;
 		this.payload = payload;
 		this.status = status;
 	}
@@ -30,12 +34,12 @@ public class ExchangeMsg
 		this.payload = payload;
 	}
 
-	public String getQueue() {
-		return queue;
+	public String getRoutingKey() {
+		return routingKey;
 	}
 
-	public void setQueue(String queue) {
-		this.queue = queue;
+	public void setRoutingKey(String queue) {
+		this.routingKey = queue;
 	}
 
 
@@ -46,6 +50,16 @@ public class ExchangeMsg
 
 	public void setStatus(String status) {
 		this.status = status;
+	}
+
+
+	public String getSender() {
+		return sender;
+	}
+
+
+	public void setSender(String sender) {
+		this.sender = sender;
 	}
 	
 	
