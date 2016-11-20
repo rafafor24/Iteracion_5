@@ -9,7 +9,13 @@ import javax.jms.DeliveryMode;
 import javax.jms.ExceptionListener;
 import javax.jms.JMSException;
 import javax.jms.Message;
+import javax.jms.MessageConsumer;
 import javax.jms.MessageListener;
+import javax.jms.Queue;
+import javax.jms.QueueConnection;
+import javax.jms.QueueConnectionFactory;
+import javax.jms.QueueReceiver;
+import javax.jms.QueueSession;
 import javax.jms.Session;
 import javax.jms.TextMessage;
 import javax.jms.Topic;
@@ -26,6 +32,7 @@ import org.codehaus.jackson.JsonParseException;
 import org.codehaus.jackson.map.JsonMappingException;
 import org.codehaus.jackson.map.ObjectMapper;
 
+import com.rabbitmq.jms.admin.RMQConnectionFactory;
 import com.rabbitmq.jms.admin.RMQDestination;
 
 import dtm.VideoAndesDistributed;
@@ -36,7 +43,7 @@ import vos.Video;
 
 public class AllVideosMDB implements MessageListener, ExceptionListener 
 {
-	public final static int TIME_OUT = 10;
+	public final static int TIME_OUT = 5;
 	private final static String APP = "app1";
 	
 	private final static String GLOBAL_TOPIC_NAME = "java:global/RMQTopicAllVideos";
@@ -53,7 +60,7 @@ public class AllVideosMDB implements MessageListener, ExceptionListener
 	private List<Video> answer = new ArrayList<Video>();
 	
 	public AllVideosMDB(TopicConnectionFactory factory, InitialContext ctx) throws JMSException, NamingException 
-	{
+	{	
 		topicConnection = factory.createTopicConnection();
 		topicSession = topicConnection.createTopicSession(false, Session.AUTO_ACKNOWLEDGE);
 		globalTopic = (RMQDestination) ctx.lookup(GLOBAL_TOPIC_NAME);
@@ -78,6 +85,7 @@ public class AllVideosMDB implements MessageListener, ExceptionListener
 	
 	public ListaVideos getRemoteVideos() throws JsonGenerationException, JsonMappingException, JMSException, IOException, NonReplyException, InterruptedException
 	{
+		answer.clear();
 		sendMessage("", REQUEST, globalTopic);
 		boolean waiting = true;
 
@@ -97,7 +105,6 @@ public class AllVideosMDB implements MessageListener, ExceptionListener
 		if(answer.isEmpty())
 			throw new NonReplyException("Non Response");
 		ListaVideos res = new ListaVideos(answer);
-        answer.clear();
         return res;
 	}
 	
@@ -121,8 +128,11 @@ public class AllVideosMDB implements MessageListener, ExceptionListener
 		try 
 		{
 			String body = txt.getText();
+			System.out.println(body);
 			ObjectMapper mapper = new ObjectMapper();
 			ExchangeMsg ex = mapper.readValue(body, ExchangeMsg.class);
+			System.out.println(ex.getSender());
+			System.out.println(ex.getStatus());
 			if(!ex.getSender().equals(APP))
 			{
 				if(ex.getStatus().equals(REQUEST))
@@ -135,6 +145,7 @@ public class AllVideosMDB implements MessageListener, ExceptionListener
 				}
 				else if(ex.getStatus().equals(REQUEST_ANSWER))
 				{
+					
 					ListaVideos v = mapper.readValue(ex.getPayload(), ListaVideos.class);
 					answer.addAll(v.getVideos());
 				}

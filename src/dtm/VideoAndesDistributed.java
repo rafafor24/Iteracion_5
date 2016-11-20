@@ -3,6 +3,12 @@ package dtm;
 import java.io.IOException;
 
 import javax.jms.JMSException;
+import javax.jms.Queue;
+import javax.jms.QueueConnection;
+import javax.jms.QueueConnectionFactory;
+import javax.jms.QueueReceiver;
+import javax.jms.QueueSession;
+import javax.jms.Session;
 import javax.jms.TopicConnectionFactory;
 import javax.naming.InitialContext;
 import javax.naming.NamingException;
@@ -13,6 +19,7 @@ import org.codehaus.jackson.JsonGenerationException;
 import org.codehaus.jackson.map.JsonMappingException;
 
 import com.rabbitmq.jms.admin.RMQConnectionFactory;
+import com.rabbitmq.jms.admin.RMQDestination;
 
 import jms.AllVideosMDB;
 import jms.NonReplyException;
@@ -21,11 +28,14 @@ import vos.ListaVideos;
 
 public class VideoAndesDistributed 
 {
+	private final static String QUEUE_NAME = "java:global/RMQAppQueue";
 	private final static String MQ_CONNECTION_NAME = "java:global/RMQClient";
 	
 	private static VideoAndesDistributed instance;
 	
 	private VideoAndesMaster tm;
+	
+	private QueueConnectionFactory queueFactory;
 	
 	private TopicConnectionFactory factory;
 	
@@ -39,6 +49,7 @@ public class VideoAndesDistributed
 		InitialContext ctx = new InitialContext();
 		factory = (RMQConnectionFactory) ctx.lookup(MQ_CONNECTION_NAME);
 		allVideosMQ = new AllVideosMDB(factory, ctx);
+		
 		allVideosMQ.start();
 		
 	}

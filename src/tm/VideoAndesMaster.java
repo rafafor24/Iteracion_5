@@ -20,6 +20,7 @@ import java.util.Properties;
 
 import dao.DAOTablaVideos;
 import dtm.VideoAndesDistributed;
+import jms.NonReplyException;
 import vos.Video;
 import vos.ListaVideos;
 
@@ -153,8 +154,18 @@ public class VideoAndesMaster {
 				throw exception;
 			}
 		}
-		dtm.getRemoteVideos();
-		return new ListaVideos(videos);
+		ListaVideos remL;
+//		try
+//		{
+			remL = dtm.getRemoteVideos();
+			System.out.println(remL.getVideos().size());
+			remL.getVideos().addAll(videos);
+//		}
+//		catch(NonReplyException e)
+//		{
+//			remL = new ListaVideos(videos);
+//		}
+		return remL;
 	}
 
 	/**
