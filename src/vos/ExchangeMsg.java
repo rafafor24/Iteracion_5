@@ -26,6 +26,7 @@ public class ExchangeMsg
 		this.sender = sender;
 		this.payload = payload;
 		this.status = status;
+		this.msgId = msgId;
 	}
 	
 

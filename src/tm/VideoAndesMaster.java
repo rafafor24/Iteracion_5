@@ -119,13 +119,9 @@ public class VideoAndesMaster {
 	///////Transacciones////////////////////
 	////////////////////////////////////////
 
-
-	/**
-	 * Método que modela la transacción que retorna todos los videos de la base de datos.
-	 * @return ListaVideos - objeto que modela  un arreglo de videos. este arreglo contiene el resultado de la búsqueda
-	 * @throws Exception -  cualquier error que se genere durante la transacción
-	 */
-	public ListaVideos darVideos() throws Exception {
+	
+	
+	public ListaVideos darVideosLocal() throws Exception {
 		ArrayList<Video> videos;
 		DAOTablaVideos daoVideos = new DAOTablaVideos();
 		try 
@@ -154,16 +150,25 @@ public class VideoAndesMaster {
 				throw exception;
 			}
 		}
-		ListaVideos remL;
+		return new ListaVideos(videos);
+	}
+
+	/**
+	 * Método que modela la transacción que retorna todos los videos de la base de datos.
+	 * @return ListaVideos - objeto que modela  un arreglo de videos. este arreglo contiene el resultado de la búsqueda
+	 * @throws Exception -  cualquier error que se genere durante la transacción
+	 */
+	public ListaVideos darVideos() throws Exception {
+		ListaVideos remL = darVideosLocal();
 		try
 		{
-			remL = dtm.getRemoteVideos();
-			System.out.println(remL.getVideos().size());
-			remL.getVideos().addAll(videos);
+			ListaVideos resp = dtm.getRemoteVideos();
+			System.out.println(resp.getVideos().size());
+			remL.getVideos().addAll(resp.getVideos());
 		}
 		catch(NonReplyException e)
 		{
-			remL = new ListaVideos(videos);
+			
 		}
 		return remL;
 	}

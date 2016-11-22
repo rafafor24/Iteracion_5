@@ -28,6 +28,7 @@ import javax.jms.TopicSession;
 import javax.jms.TopicSubscriber;
 import javax.naming.InitialContext;
 import javax.naming.NamingException;
+import javax.xml.bind.DatatypeConverter;
 
 import org.codehaus.jackson.JsonGenerationException;
 import org.codehaus.jackson.JsonParseException;
@@ -90,7 +91,8 @@ public class AllVideosMDB implements MessageListener, ExceptionListener
 		answer.clear();
 		String id = APP+""+System.currentTimeMillis();
 		MessageDigest md = MessageDigest.getInstance("MD5");
-		id = new String(md.digest(id.getBytes())).substring(0, 7);
+		id = DatatypeConverter.printHexBinary(md.digest(id.getBytes())).substring(0, 8);
+//		id = new String(md.digest(id.getBytes()));
 		
 		sendMessage("", REQUEST, globalTopic, id);
 		boolean waiting = true;
@@ -118,12 +120,15 @@ public class AllVideosMDB implements MessageListener, ExceptionListener
 	private void sendMessage(String payload, String status, Topic dest, String id) throws JMSException, JsonGenerationException, JsonMappingException, IOException
 	{
 		ObjectMapper mapper = new ObjectMapper();
+		System.out.println(id);
 		ExchangeMsg msg = new ExchangeMsg("videos.general.app1", APP, payload, status, id);
 		TopicPublisher topicPublisher = topicSession.createPublisher(dest);
 		topicPublisher.setDeliveryMode(DeliveryMode.PERSISTENT);
 		TextMessage txtMsg = topicSession.createTextMessage();
 		txtMsg.setJMSType("TextMessage");
-		txtMsg.setText(mapper.writeValueAsString(msg));
+		String envelope = mapper.writeValueAsString(msg);
+		System.out.println(envelope);
+		txtMsg.setText(envelope);
 		topicPublisher.publish(txtMsg);
 	}
 	
@@ -147,7 +152,7 @@ public class AllVideosMDB implements MessageListener, ExceptionListener
 					VideoAndesDistributed dtm = VideoAndesDistributed.getInstance();
 					ListaVideos videos = dtm.getLocalVideos();
 					String payload = mapper.writeValueAsString(videos);
-					Topic t = new RMQDestination(null, "videos.request", ex.getRoutingKey(), null);
+					Topic t = new RMQDestination("", "videos.test", ex.getRoutingKey(), "", false);
 					sendMessage(payload, REQUEST_ANSWER, t, id);
 				}
 				else if(ex.getStatus().equals(REQUEST_ANSWER))

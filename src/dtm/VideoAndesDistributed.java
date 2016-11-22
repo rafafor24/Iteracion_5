@@ -112,7 +112,7 @@ public class VideoAndesDistributed
 	
 	public ListaVideos getLocalVideos() throws Exception
 	{
-		return tm.darVideos();
+		return tm.darVideosLocal();
 	}
 	
 	public ListaVideos getRemoteVideos() throws JsonGenerationException, JsonMappingException, JMSException, IOException, NonReplyException, InterruptedException, NoSuchAlgorithmException
