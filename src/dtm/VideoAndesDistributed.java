@@ -1,6 +1,7 @@
 package dtm;
 
 import java.io.IOException;
+import java.security.NoSuchAlgorithmException;
 
 import javax.jms.JMSException;
 import javax.jms.Queue;
@@ -114,7 +115,7 @@ public class VideoAndesDistributed
 		return tm.darVideos();
 	}
 	
-	public ListaVideos getRemoteVideos() throws JsonGenerationException, JsonMappingException, JMSException, IOException, NonReplyException, InterruptedException
+	public ListaVideos getRemoteVideos() throws JsonGenerationException, JsonMappingException, JMSException, IOException, NonReplyException, InterruptedException, NoSuchAlgorithmException
 	{
 		return allVideosMQ.getRemoteVideos();
 	}

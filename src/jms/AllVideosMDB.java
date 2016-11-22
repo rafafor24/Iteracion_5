@@ -1,6 +1,8 @@
 package jms;
 
 import java.io.IOException;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
@@ -83,10 +85,14 @@ public class AllVideosMDB implements MessageListener, ExceptionListener
 		topicConnection.close();
 	}
 	
-	public ListaVideos getRemoteVideos() throws JsonGenerationException, JsonMappingException, JMSException, IOException, NonReplyException, InterruptedException
+	public ListaVideos getRemoteVideos() throws JsonGenerationException, JsonMappingException, JMSException, IOException, NonReplyException, InterruptedException, NoSuchAlgorithmException
 	{
 		answer.clear();
-		sendMessage("", REQUEST, globalTopic);
+		String id = APP+""+System.currentTimeMillis();
+		MessageDigest md = MessageDigest.getInstance("MD5");
+		id = new String(md.digest(id.getBytes())).substring(0, 7);
+		
+		sendMessage("", REQUEST, globalTopic, id);
 		boolean waiting = true;
 
 		int count = 0;
@@ -109,10 +115,10 @@ public class AllVideosMDB implements MessageListener, ExceptionListener
 	}
 	
 	
-	private void sendMessage(String payload, String status, Topic dest) throws JMSException, JsonGenerationException, JsonMappingException, IOException
+	private void sendMessage(String payload, String status, Topic dest, String id) throws JMSException, JsonGenerationException, JsonMappingException, IOException
 	{
 		ObjectMapper mapper = new ObjectMapper();
-		ExchangeMsg msg = new ExchangeMsg("videos.general.app1", APP, payload, status);
+		ExchangeMsg msg = new ExchangeMsg("videos.general.app1", APP, payload, status, id);
 		TopicPublisher topicPublisher = topicSession.createPublisher(dest);
 		topicPublisher.setDeliveryMode(DeliveryMode.PERSISTENT);
 		TextMessage txtMsg = topicSession.createTextMessage();
@@ -131,6 +137,7 @@ public class AllVideosMDB implements MessageListener, ExceptionListener
 			System.out.println(body);
 			ObjectMapper mapper = new ObjectMapper();
 			ExchangeMsg ex = mapper.readValue(body, ExchangeMsg.class);
+			String id = ex.getMsgId();
 			System.out.println(ex.getSender());
 			System.out.println(ex.getStatus());
 			if(!ex.getSender().equals(APP))
@@ -141,11 +148,10 @@ public class AllVideosMDB implements MessageListener, ExceptionListener
 					ListaVideos videos = dtm.getLocalVideos();
 					String payload = mapper.writeValueAsString(videos);
 					Topic t = new RMQDestination(null, "videos.request", ex.getRoutingKey(), null);
-					sendMessage(payload, REQUEST_ANSWER, t);
+					sendMessage(payload, REQUEST_ANSWER, t, id);
 				}
 				else if(ex.getStatus().equals(REQUEST_ANSWER))
 				{
-					
 					ListaVideos v = mapper.readValue(ex.getPayload(), ListaVideos.class);
 					answer.addAll(v.getVideos());
 				}

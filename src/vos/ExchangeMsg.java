@@ -16,8 +16,11 @@ public class ExchangeMsg
 	@JsonProperty(value="status")
 	private String status;
 	
+	@JsonProperty(value="msgId")
+	private String msgId;
+	
 	public ExchangeMsg(@JsonProperty(value="routingkey") String queue, @JsonProperty(value="sender") String sender, @JsonProperty(value="payload") String payload, 
-						@JsonProperty(value="status") String status) 
+						@JsonProperty(value="status") String status, @JsonProperty(value="msgId") String msgId) 
 	{
 		this.routingKey = queue;
 		this.sender = sender;
@@ -60,6 +63,16 @@ public class ExchangeMsg
 
 	public void setSender(String sender) {
 		this.sender = sender;
+	}
+
+
+	public String getMsgId() {
+		return msgId;
+	}
+
+
+	public void setMsgId(String msgId) {
+		this.msgId = msgId;
 	}
 	
 	

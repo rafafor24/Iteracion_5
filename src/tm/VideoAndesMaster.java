@@ -155,16 +155,16 @@ public class VideoAndesMaster {
 			}
 		}
 		ListaVideos remL;
-//		try
-//		{
+		try
+		{
 			remL = dtm.getRemoteVideos();
 			System.out.println(remL.getVideos().size());
 			remL.getVideos().addAll(videos);
-//		}
-//		catch(NonReplyException e)
-//		{
-//			remL = new ListaVideos(videos);
-//		}
+		}
+		catch(NonReplyException e)
+		{
+			remL = new ListaVideos(videos);
+		}
 		return remL;
 	}
 
