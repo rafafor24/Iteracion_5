@@ -19,6 +19,8 @@ import java.util.ArrayList;
 import java.util.Properties;
 
 import dao.DAOTablaVideos;
+import dtm.VideoAndesDistributed;
+import jms.NonReplyException;
 import vos.Video;
 import vos.ListaVideos;
 
@@ -63,6 +65,8 @@ public class VideoAndesMaster {
 	 * Conexión a la base de datos
 	 */
 	private Connection conn;
+	
+	private VideoAndesDistributed dtm;
 
 
 	/**
@@ -75,6 +79,9 @@ public class VideoAndesMaster {
 	public VideoAndesMaster(String contextPathP) {
 		connectionDataPath = contextPathP + CONNECTION_DATA_FILE_NAME_REMOTE;
 		initConnectionData();
+		System.out.println("Instancing DTM...");
+		dtm = VideoAndesDistributed.getInstance(this);
+		System.out.println("Done!");
 	}
 
 	/*
@@ -112,13 +119,9 @@ public class VideoAndesMaster {
 	///////Transacciones////////////////////
 	////////////////////////////////////////
 
-
-	/**
-	 * Método que modela la transacción que retorna todos los videos de la base de datos.
-	 * @return ListaVideos - objeto que modela  un arreglo de videos. este arreglo contiene el resultado de la búsqueda
-	 * @throws Exception -  cualquier error que se genere durante la transacción
-	 */
-	public ListaVideos darVideos() throws Exception {
+	
+	
+	public ListaVideos darVideosLocal() throws Exception {
 		ArrayList<Video> videos;
 		DAOTablaVideos daoVideos = new DAOTablaVideos();
 		try 
@@ -148,6 +151,26 @@ public class VideoAndesMaster {
 			}
 		}
 		return new ListaVideos(videos);
+	}
+
+	/**
+	 * Método que modela la transacción que retorna todos los videos de la base de datos.
+	 * @return ListaVideos - objeto que modela  un arreglo de videos. este arreglo contiene el resultado de la búsqueda
+	 * @throws Exception -  cualquier error que se genere durante la transacción
+	 */
+	public ListaVideos darVideos() throws Exception {
+		ListaVideos remL = darVideosLocal();
+		try
+		{
+			ListaVideos resp = dtm.getRemoteVideos();
+			System.out.println(resp.getVideos().size());
+			remL.getVideos().addAll(resp.getVideos());
+		}
+		catch(NonReplyException e)
+		{
+			
+		}
+		return remL;
 	}
 
 	/**
