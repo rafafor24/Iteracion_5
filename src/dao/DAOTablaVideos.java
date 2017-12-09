@@ -78,7 +78,7 @@ public class DAOTablaVideos {
 	public ArrayList<Video> darVideos() throws SQLException, Exception {
 		ArrayList<Video> videos = new ArrayList<Video>();
 
-		String sql = "SELECT * FROM ISIS2304MO11620.VIDEOS";
+		String sql = "SELECT * FROM VIDEOS";
 
 		PreparedStatement prepStmt = conn.prepareStatement(sql);
 		recursos.add(prepStmt);
@@ -104,7 +104,7 @@ public class DAOTablaVideos {
 	public ArrayList<Video> buscarVideosPorName(String name) throws SQLException, Exception {
 		ArrayList<Video> videos = new ArrayList<Video>();
 
-		String sql = "SELECT * FROM ISIS2304MO11620.VIDEOS WHERE NAME ='" + name + "'";
+		String sql = "SELECT * FROM VIDEOS WHERE NAME ='" + name + "'";
 
 		System.out.println("SQL stmt:" + sql);
 
@@ -132,7 +132,7 @@ public class DAOTablaVideos {
 	 */
 	public void addVideo(Video video) throws SQLException, Exception {
 
-		String sql = "INSERT INTO ISIS2304MO11620.VIDEOS VALUES (";
+		String sql = "INSERT INTO VIDEOS VALUES (";
 		sql += video.getId() + ",'";
 		sql += video.getName() + "',";
 		sql += video.getDuration() + ")";
@@ -155,7 +155,7 @@ public class DAOTablaVideos {
 	 */
 	public void updateVideo(Video video) throws SQLException, Exception {
 
-		String sql = "UPDATE ISIS2304MO11620.VIDEOS SET ";
+		String sql = "UPDATE VIDEOS SET ";
 		sql += "name='" + video.getName() + "',";
 		sql += "duration=" + video.getDuration();
 		sql += " WHERE id = " + video.getId();
@@ -177,7 +177,7 @@ public class DAOTablaVideos {
 	 */
 	public void deleteVideo(Video video) throws SQLException, Exception {
 
-		String sql = "DELETE FROM ISIS2304MO11620.VIDEOS";
+		String sql = "DELETE FROM VIDEOS";
 		sql += " WHERE id = " + video.getId();
 
 		System.out.println("SQL stmt:" + sql);
@@ -197,8 +197,8 @@ public class DAOTablaVideos {
 		ArrayList<Video> videos = new ArrayList<Video>();
 
 		String sql = "SELECT * " +
-					 "FROM ISIS2304MO11620.VIDEOS " +
-				     "WHERE ISIS2304MO11620.VIDEOS.ID IN (SELECT VIDEO_ID " +
+					 "FROM VIDEOS " +
+				     "WHERE VIDEOS.ID IN (SELECT VIDEO_ID " +
 				                         "FROM ALQUILERES " +
 				                         "GROUP BY VIDEO_ID " +
 				                         "HAVING COUNT(*) = (SELECT MAX(COUNT(*)) " +
